@@ -6,11 +6,13 @@ specifiers:
   postcss: ^8.4.12
   socket.io-client: ^4.4.1
   tailwindcss: ^3.0.24
+  uniqolor: ^1.0.2
   vite: ^2.9.5
   vue: ^3.2.25
 
 dependencies:
   socket.io-client: 4.4.1
+  uniqolor: 1.0.2
   vue: 3.2.33
 
 devDependencies:
@@ -897,6 +899,10 @@ packages:
     dependencies:
       is-number: 7.0.0
     dev: true
+
+  /uniqolor/1.0.2:
+    resolution: {integrity: sha512-uNU+1iuhQioRZBG8TyjC+dFRuVmnZ6vp29ukoZjhrX3U5TP8onSr6S+qnTNAOnzlakmHWB0r/MPeMfMJ3+T7kg==}
+    dev: false
 
   /util-deprecate/1.0.2:
     resolution: {integrity: sha1-RQ1Nyfpw3nMnYvvS1KKJgUGaDM8=}

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "socket.io-client": "^4.4.1",
+    "uniqolor": "^1.0.2",
     "vue": "^3.2.25"
   },
   "devDependencies": {
