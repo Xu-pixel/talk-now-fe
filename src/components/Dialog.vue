@@ -1,5 +1,5 @@
 <template>
-    <div  ref="postContainer">
+    <div  ref="postContainer" class=" transition-all duration-300">
         <div v-for="(post, i) in posts" class="flex px-2 md:w-2/3 w-11/12"
             :class="post.cardColor === bgColor && post.nickName === nickName ? ' justify-end' : 'justify-start'">
             <div class="my-2 p-2 flex flex-col rounded-b-xl"

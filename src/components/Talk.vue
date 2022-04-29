@@ -1,17 +1,19 @@
 <template>
     <div class="h-screen w-full flex-col flex">
-        <div class="bg-white w-full flex flex-col items-center h-40 z-10 flex-none">
+        <div class="bg-white w-full flex flex-col items-center z-10 flex-none">
             <div class="flex">
                 <button class="btn" @click="changeNickName">修改昵称</button>
                 <button class="btn" @click="logout">退出</button>
                 <button class="btn" @click="reload">连接</button>
+                <button class="btn" @click="joinRoom">加入</button>
             </div>
             <p>当前昵称:{{ nickName }}</p>
             <p v-if="connected" style="color: green;">在线</p>
             <p v-else style="color: red;">离线</p>
-            <p>socketId:{{ socketId }}</p>
+            <!-- <p>socketId:{{ socketId }}</p> -->
         </div>
-        <Dialog :nickName="nickName" :posts="posts" :bgColor="bgColor" class="w-full grow h-20 overflow-auto scroll-smooth flex flex-col items-center"></Dialog>
+        <RoomsPanel :rooms="rooms" :curRoom="curRoom" class="flex-none" @change-room="(room) => curRoom = room"></RoomsPanel>
+        <Dialog :nickName="nickName" :posts="posts.filter((v => v.roomId === curRoom))" :bgColor="bgColor" class="w-full grow h-20 overflow-auto scroll-smooth flex flex-col items-center"></Dialog>
         <div class="flex w-full bg-white h-16 flex-none">
             <input @focus="scrollButtom"
                 @keyup.enter="sendPost"
@@ -27,6 +29,7 @@
 import { getCurrentInstance, reactive, ref, toRefs, watch, watchEffect } from "vue"
 import uniqolor from 'uniqolor';
 import Dialog from "./Dialog.vue";
+import RoomsPanel from "./RoomsPanel.vue";
 
 
 export default {
@@ -42,11 +45,13 @@ export default {
             connected: false
         });
         const rooms = ref([]);
+        let curRoom = ref('')
         const posts = ref([]);
         const inputBox = ref("");
         const postContainer = ref(null);
         const changeNickName = () => {
             const nickName = prompt("输入名字", profile.nickName);
+            if(!nickName)return 
             profile.nickName = nickName;
         };
         console.log(proxy.$socket);
@@ -74,28 +79,53 @@ export default {
             proxy.$socket.emit("logout", profile.talkId);
             profile.talkId = "";
         };
-        //post
-        proxy.$socket.on("post", (cardColor, nickName, text, time) => {
+        //post listener
+        proxy.$socket.on("post", (roomId,cardColor, nickName, text, time) => {
             posts.value.push({
+                roomId:roomId,
                 cardColor: cardColor,
                 nickName: nickName,
                 text: text,
                 time: time,
             });
         });
+
+        //join room listener
+        proxy.$socket.on('joinRoom',(status,roomId)=>{
+            if(status==='success')rooms.value.push(roomId)
+            curRoom.value = roomId
+        })
+
         //functions
+        //post
         const sendPost = () => {
+            console.log('sendPost')
             posts.value.push({
+                roomId:curRoom.value,
                 cardColor: bgColor.value,
                 nickName: profile.nickName,
                 text: inputBox.value,
                 time: Date()
             });
-            proxy.$socket.emit("post", bgColor.value, profile.nickName, inputBox.value, Date());
+            proxy.$socket.emit("post", curRoom.value,bgColor.value, profile.nickName, inputBox.value, Date());
             inputBox.value = "";
             // postContainer.value.scrollTop = postContainer.value.scrollHeight - postContainer.value.clientHeight
             // console.log(postContainer.value.scrollTop)
+            console.log(posts.value)
         };
+
+        //join room 
+        //加入房间按钮方法
+        const joinRoom = ()=>{
+            const roomId = prompt('房间号','')
+            if(rooms.value.indexOf(roomId) !== -1){
+                console.log('已经加入房间')
+                return
+            }
+            proxy.$socket.emit('joinRoom',roomId)
+        }
+
+        //刷新
         const reload = () => {
             location.reload();
         };
@@ -111,6 +141,7 @@ export default {
             console.log(state.connected);
             console.log(state.socketId);
         });
+
         return {
             ...toRefs(profile),
             ...toRefs(state),
@@ -121,10 +152,13 @@ export default {
             inputBox,
             posts,
             postContainer,
-            bgColor
+            bgColor,
+            curRoom,
+            rooms,
+            joinRoom,
         };
     },
-    components: { Dialog }
+    components: { Dialog, RoomsPanel }
 }
 </script>
 
