@@ -13,12 +13,12 @@
             </div>
             <!-- <p>socketId:{{ socketId }}</p> -->
         </div>
-        <RoomsPanel :rooms="rooms" :curRoom="curRoom" class="flex-none p-2 bg-slate-200 mb-2" @change-room="(room) => curRoom = room"></RoomsPanel>
+        <RoomsPanel :rooms="rooms" :curRoom="curRoom" class="flex-none p-2  mb-2" @change-room="(room) => curRoom = room"></RoomsPanel>
         <Dialog :nickName="nickName" :posts="posts.filter((v => v.roomId === curRoom))" :bgColor="bgColor" class="w-full grow h-20 overflow-auto scroll-smooth flex flex-col items-center"></Dialog>
         <div class="flex w-full bg-white h-16 flex-none">
             <input @focus="scrollButtom"
                 @keyup.enter="sendPost"
-                class=" w-5/6 outline-none rounded-md border-2 p-2 m-2 border-solid border-blue-500" type="text"
+                class=" w-5/6 outline-none rounded-md border-2 p-2 m-2 border-solid border-blue-100 focus:border-blue-500" type="text"
                 v-model="inputBox">
             <button class="btn block p-auto w-1/6" @click="sendPost" 
                 :disabled="inputBox.length == 0">发送</button>
@@ -121,7 +121,8 @@ export default {
         //join room 
         //加入房间按钮方法
         const joinRoom = ()=>{
-            const roomId = prompt('房间号','')
+            const roomId = prompt('房间号',curRoom.value || '大厅')
+            if(roomId === '大厅')return
             if(rooms.value.indexOf(roomId) !== -1){
                 console.log('已经加入房间')
                 return
