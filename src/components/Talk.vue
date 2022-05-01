@@ -55,7 +55,8 @@
         <div class="flex w-full bg-white h-16 flex-none">
             <input @focus="scrollButtom" @keyup.enter="sendPost"
                 class=" w-5/6 outline-none rounded-md border-2 p-2 m-2 border-solid border-blue-100 focus:border-blue-500"
-                type="text" v-model="inputBox">
+                type="text" v-model="inputBox"
+                ref="postInput">
             <button class="btn block p-auto w-1/6" @click="sendPost" :disabled="inputBox.length == 0">发送</button>
         </div>
     </div>
@@ -92,7 +93,7 @@ export default {
             profile.nickName = nickName;
         };
         const counter = reactive(new Map())
-
+        const postInput = ref(null)
 
         console.log(proxy.$socket);
         proxy.$socket.on("message", message => console.log(message));
@@ -159,7 +160,8 @@ export default {
             inputBox.value = "";
             // postContainer.value.scrollTop = postContainer.value.scrollHeight - postContainer.value.clientHeight
             // console.log(postContainer.value.scrollTop)
-            console.log(posts.value)
+            // console.log(posts.value)
+            postInput.value.focus()
         };
 
         //join room 
@@ -207,7 +209,8 @@ export default {
             curRoom,
             rooms,
             joinRoom,
-            counter
+            counter,
+            postInput
         };
     },
     components: { Dialog, RoomsPanel, Message }
