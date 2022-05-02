@@ -1,6 +1,5 @@
 <template>
-
-    <div class="h-screen w-full flex-col flex relative">
+    <div class="h-screen w-full flex-col flex relative" @click="resetRoomsList">
         <Message :curRoom="curRoom"></Message>
         <div class="bg-white w-full flex justify-between items-center z-10 flex-none border-b-2">
             <div class="flex items-center">
@@ -9,13 +8,16 @@
                 <p class=" font-bold mx-2">{{ nickName }}</p>
             </div>
             <div class="flex items-center justify-center">
-                <div class="flex-none flex justify-center items-center mr-4"><svg xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24" class="w-4 h-4">
-                        <path fill="none" d="M0 0h24v24H0z" />
-                        <path
-                            d="M4 22a8 8 0 1 1 16 0h-2a6 6 0 1 0-12 0H4zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm0-2c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
-                    </svg>
-                    <div> &times; {{ counter.get(curRoom) }} </div>
+                <div class="flex flex-col items-center mr-4 truncate w-12 text-sm">
+                    <div class="text-center ">{{ curRoom || '大厅' }}</div>
+                    <div class="flex-none flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-3 h-3">
+                            <path fill="none" d="M0 0h24v24H0z" />
+                            <path
+                                d="M4 22a8 8 0 1 1 16 0h-2a6 6 0 1 0-12 0H4zm8-9c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm0-2c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" />
+                        </svg>
+                        <div>&nbsp;&times; {{ counter.get(curRoom) }}</div>
+                    </div>
                 </div>
                 <button class="btn" @click="changeNickName"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                         width="24" height="24">
@@ -24,13 +26,17 @@
                             d="M2 3.993A1 1 0 0 1 2.992 3h18.016c.548 0 .992.445.992.993v16.014a1 1 0 0 1-.992.993H2.992A.993.993 0 0 1 2 20.007V3.993zM4 5v14h16V5H4zm2 2h6v6H6V7zm2 2v2h2V9H8zm-2 6h12v2H6v-2zm8-8h4v2h-4V7zm0 4h4v2h-4v-2z"
                             fill="rgba(255,255,255,1)" />
                     </svg></button>
-                <button class="btn" @click="logout"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                        width="24" height="24">
-                        <path fill="none" d="M0 0h24v24H0z" />
-                        <path
-                            d="M5 22a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v3h-2V4H6v16h12v-2h2v3a1 1 0 0 1-1 1H5zm13-6v-3h-7v-2h7V8l5 4-5 4z"
-                            fill="rgba(255,255,255,1)" />
-                    </svg></button>
+                <div class="">
+                    <button class="btn" @click.stop="openRoomsList"><svg xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="none" d="M0 0h24v24H0z" />
+                            <path
+                                d="M5 22a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v3h-2V4H6v16h12v-2h2v3a1 1 0 0 1-1 1H5zm13-6v-3h-7v-2h7V8l5 4-5 4z"
+                                fill="rgba(255,255,255,1)" />
+                        </svg></button>
+                    <RoomsPanel :rooms="rooms" :curRoom="curRoom" class=" absolute"
+                        :class="roomsListIsOpen ? 'block' : 'hidden'" @change-room="(room) => curRoom = room"></RoomsPanel>
+                </div>
                 <button class="btn" @click="reload"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                         width="24" height="24">
                         <path fill="none" d="M0 0h24v24H0z" />
@@ -48,15 +54,13 @@
             </div>
             <!-- <p>socketId:{{ socketId }}</p> -->
         </div>
-        <RoomsPanel :rooms="rooms" :curRoom="curRoom" class="flex-none p-2  mb-2"
-            @change-room="(room) => curRoom = room"></RoomsPanel>
+
         <Dialog :nickName="nickName" :posts="posts.filter((v => v.roomId === curRoom))" :bgColor="bgColor"
-            class="w-full grow h-20 overflow-auto scroll-smooth flex flex-col items-center"></Dialog>
+            class="w-full grow h-20 overflow-auto scroll-smooth flex flex-col items-center pt-2"></Dialog>
         <div class="flex w-full bg-white h-16 flex-none">
             <input @focus="scrollButtom" @keyup.enter="sendPost"
                 class=" w-5/6 outline-none rounded-md border-2 p-2 m-2 border-solid border-blue-100 focus:border-blue-500"
-                type="text" v-model="inputBox"
-                ref="postInput">
+                type="text" v-model="inputBox" ref="postInput">
             <button class="btn block p-auto w-1/6" @click="sendPost" :disabled="inputBox.length == 0">发送</button>
         </div>
     </div>
@@ -68,7 +72,7 @@ import uniqolor from 'uniqolor';
 import Dialog from "./Dialog.vue";
 import RoomsPanel from "./RoomsPanel.vue";
 import Message from "./Message.vue";
-
+import useRoomsList from "../use/useRoomsList"
 
 export default {
     setup() {
@@ -183,6 +187,9 @@ export default {
             location.reload();
         };
 
+        //打开房间列表roomsList
+
+
         //监视
         watch(() => profile.nickName, (nickName) => localStorage.setItem("nickName", nickName));
         watch(() => profile.talkId, (talkId) => {
@@ -210,7 +217,8 @@ export default {
             rooms,
             joinRoom,
             counter,
-            postInput
+            postInput,
+            ...useRoomsList()
         };
     },
     components: { Dialog, RoomsPanel, Message }
@@ -219,6 +227,6 @@ export default {
 
 <style>
 .btn {
-    @apply outline-none transition-all duration-300 active:bg-blue-700 rounded-md p-2 m-2 bg-blue-500 text-white disabled:bg-slate-100 disabled:text-black
+    @apply outline-none transition-all duration-300 active:bg-blue-700 rounded-md p-2 my-2 mx-1 bg-blue-500 text-white disabled:bg-slate-100 disabled:text-black
 }
 </style>
